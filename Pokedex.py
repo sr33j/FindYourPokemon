@@ -9,10 +9,26 @@ def get_pokemon(gen):
 	pokeTables = soup.find_all('table')
 	firstGen = pokeTables[gen]
 	links = firstGen.find_all('a')
-
+	# print(links)
 	for link in links:
 		if "(Pokémon)" in link['title']:
 			print(link.get_text())
+			# print(link.img['src'])
+
+def get_pokemon_images(gen):
+	html_doc = requests.get(
+		"https://bulbapedia.bulbagarden.net/wiki/List_of_Pok%C3%A9mon_by_National_Pok%C3%A9dex_number").text
+	soup = BeautifulSoup(html_doc, 'html.parser')
+	pokeTables = soup.find_all('table')
+	firstGen = pokeTables[gen]
+	images = firstGen.find_all('img')
+	# print(links)
+	for image in images:
+		image_url = "https:" + image['src']
+		img_data = requests.get(image_url).content
+		with open('images/mini_pokemon/'+image['alt'].lower()+'.jpg', 'wb') as handler:
+			handler.write(img_data)
+			print(image['alt'])
 
 #taken from https://www.geeksforgeeks.org/dynamic-programming-set-5-edit-distance/
 def edit_dist_recur(str1, str2, m, n):
@@ -47,8 +63,38 @@ def edit_dist_recur(str1, str2, m, n):
  
     return dp[m][n]
 
+
+"""
+Compute the Damerau-Levenshtein distance between two given
+strings (s1 and s2)
+"""
+def damerau_levenshtein_distance(s1, s2):
+    d = {}
+    lenstr1 = len(s1)
+    lenstr2 = len(s2)
+    for i in range(-1,lenstr1+1):
+        d[(i,-1)] = i+1
+    for j in range(-1,lenstr2+1):
+        d[(-1,j)] = j+1
+ 
+    for i in range(lenstr1):
+        for j in range(lenstr2):
+            if s1[i] == s2[j]:
+                cost = 0
+            else:
+                cost = 1
+            d[(i,j)] = min(
+                           d[(i-1,j)] + 1, # deletion
+                           d[(i,j-1)] + 1, # insertion
+                           d[(i-1,j-1)] + cost, # substitution
+                          )
+            if i and j and s1[i]==s2[j-1] and s1[i-1] == s2[j]:
+                d[(i,j)] = min (d[(i,j)], d[i-2,j-2] + cost) # transposition
+ 
+    return d[lenstr1-1,lenstr2-1]
+
 def edit_dist(str1, str2):
-	return edit_dist_recur(str1, str2, len(str1), len(str2))
+	return damerau_levenshtein_distance(str1, str2)
 
 def find_close_pokemon(name):
 	min_dist = 1000000

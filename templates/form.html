@@ -11,5 +11,9 @@
 		    <input type="submit">
 		</form>
 		<div>Your Pokemon: {{ name }}</div>
+		<!-- <img src= {{ link }} /> -->
+		{% if name %}
+			<img src="{{url_for('static', filename='minipokemon/' )}}{{name}}.jpg"/>
+		{% endif %}
 	</body>
 <html>
