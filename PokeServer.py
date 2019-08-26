@@ -13,3 +13,6 @@ def my_form_post():
     spirit_pokemon = find_your_pokemon(text)
     image_path = "minipokemon/"+spirit_pokemon+".jpg"
     return render_template('form.html',name=spirit_pokemon, link=image_path)
+
+if __name__ == '__main__':
+    app.run(threaded=True)
